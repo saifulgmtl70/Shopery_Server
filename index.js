@@ -170,6 +170,28 @@ async function run() {
     });
 
 
+    app.patch('/products/:id', async (req, res) => {
+      const item = req.body;
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) }
+      const updatedDoc = {
+        $set: {
+          name: item.name,
+          category: item.category,
+          price: item.price,
+          sale: item.sale,
+          rating: item.rating,
+          availability: item.availability,
+          description: item.description,
+          images: item.images
+        }
+      }
+
+      const result = await productsCollection.updateOne(filter, updatedDoc)
+      res.send(result);
+    })
+
+
     
     app.delete('/products/:id', verifyToken, verifyAdmin, async (req, res) => {
         const id = req.params.id;
@@ -285,7 +307,16 @@ async function run() {
       const query = { email: email };
       const result = await ordersCollection.find(query).toArray();
       res.send(result);
-  });
+    });
+
+
+    app.delete('/orders/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) }
+      const result = await ordersCollection.deleteOne(query);
+      res.send(result);
+    });
+
 
     await client.db("admin").command({ ping: 1 });
     console.log("Successfully connected to MongoDB Database!");
